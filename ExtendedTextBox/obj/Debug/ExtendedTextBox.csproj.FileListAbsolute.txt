@@ -1,5 +1,0 @@
-D:\Trabajos\ExtendedTextBox\ExtendedTextBox\obj\Debug\ResolveAssemblyReference.cache
-D:\Trabajos\ExtendedTextBox\ExtendedTextBox\bin\Debug\ExtendedTextBox.dll
-D:\Trabajos\ExtendedTextBox\ExtendedTextBox\bin\Debug\ExtendedTextBox.pdb
-D:\Trabajos\ExtendedTextBox\ExtendedTextBox\obj\Debug\ExtendedTextBox.dll
-D:\Trabajos\ExtendedTextBox\ExtendedTextBox\obj\Debug\ExtendedTextBox.pdb
