@@ -27,6 +27,14 @@ namespace Inclam
         private string _regexString;
         private string _regexCustom;
 
+        private double _minDecimalValue;
+        private double _maxDecimalValue;
+
+        private int _minLenghtStringValue;
+        private int _maxLenghtStringValue;
+
+        #region Constructor
+
         public ExtendedTextBox()
         {
             //InitializeComponent();
@@ -39,11 +47,20 @@ namespace Inclam
             // Windows messages before they get to the form's WndProc
             this.SetStyle(ControlStyles.EnableNotifyMessage, true);
 
+            // Initialize the regex expresions
             string separator = System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator;
             this._regexDecimal = "^[+-]?[0-9]+[" + separator + "]?[0-9]*?$";
             this._regexInteger = "^[+-]?[0-9]+$";
             this._regexString = @"\w+";
             this._regexCustom = "^.+$";
+            
+            // Initialize max/min value for integer/decimal
+            this._minDecimalValue = float.NaN;
+            this._maxDecimalValue = float.NaN;
+
+            // Initialize max/min lenght for string
+            this._minLenghtStringValue = -1;
+            this._maxLenghtStringValue = -1;
 
             // Launch first
             this.OnTextChanged(null);
@@ -58,41 +75,9 @@ namespace Inclam
             }
         }
 
-        public bool isValidText
-        {
-            get
-            {
-                string regex = string.Empty;
+        #endregion Constructor
 
-                switch (this._typedata)
-                {
-                    case TYPE_DATA.CUSTOM:
-                        regex = this._regexCustom;
-                        break;
-                    case TYPE_DATA.DECIMAL:
-                        regex = this._regexDecimal;
-                        break;
-                    case TYPE_DATA.INTEGER:
-                        regex = this._regexInteger;
-                        break;
-                    case TYPE_DATA.STRING:
-                        regex = this._regexString;
-                        break;
-                }
-
-                return System.Text.RegularExpressions.Regex.IsMatch(this.Text, regex);
-            }
-        }
-
-        protected override void OnTextChanged(EventArgs e)
-        {
-            base.OnTextChanged(e);
-
-            if (this.isValidText)
-                this.BackColor = Color.LightGreen;
-            else
-                this.BackColor = Color.LightSalmon;
-        }
+        #region Propierties
 
         [Browsable(true)]
         [Category("Extension")]
@@ -112,7 +97,71 @@ namespace Inclam
 
         [Browsable(true)]
         [Category("Extension")]
-        [Description("Get or set type of data")]
+        [Description("Get or set minimum value for a number. Only used with type DECIMAL/INTEGER.")]
+        [DisplayName("Min. Number Value")]
+        public double MinNumberValue
+        {
+            get
+            {
+                return this._minDecimalValue;
+            }
+            set
+            {
+                this._minDecimalValue = value;
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Extension")]
+        [Description("Get or set maximum value for a number. Only used with type DECIMAL/INTEGER.")]
+        [DisplayName("Max. Number Value")]
+        public double MaxNumberValue
+        {
+            get
+            {
+                return this._maxDecimalValue;
+            }
+            set
+            {
+                this._maxDecimalValue = value;
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Extension")]
+        [Description("Get or set minimum lenght for a string. Only used with type STRING.")]
+        [DisplayName("Min. String Lenght")]
+        public int MinStringLength
+        {
+            get
+            {
+                return this._minLenghtStringValue;
+            }
+            set
+            {
+                this._minLenghtStringValue = value;
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Extension")]
+        [Description("Get or set maximum lenght for a string. Only used with type STRING.")]
+        [DisplayName("Max. String Lenght")]
+        public int MaxStringLength
+        {
+            get
+            {
+                return this._maxLenghtStringValue;
+            }
+            set
+            {
+                this._maxLenghtStringValue = value;
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Extension")]
+        [Description("Get or set the string used with Regex. Only used if CUSTOM type is in use")]
         [DisplayName("Custom Regex")]
         public string CustomRegex
         {
@@ -125,5 +174,78 @@ namespace Inclam
                 this._regexCustom = value;
             }
         }
+
+        #endregion Propierties
+
+        #region Events
+
+        protected override void OnTextChanged(EventArgs e)
+        {
+            base.OnTextChanged(e);
+
+            if (this.isValidText)
+                this.BackColor = Color.LightGreen;
+            else
+                this.BackColor = Color.LightSalmon;
+        }
+
+        #endregion Events
+
+        #region Private functions
+
+        public bool isValidText
+        {
+            get
+            {
+
+                bool ok = true;
+
+                string regex = string.Empty;
+
+                switch (this._typedata)
+                {
+                    case TYPE_DATA.CUSTOM:
+                        regex = this._regexCustom;
+                        break;
+                    case TYPE_DATA.DECIMAL:
+                        regex = this._regexDecimal;
+                        break;
+                    case TYPE_DATA.INTEGER:
+                        regex = this._regexInteger;
+                        break;
+                    case TYPE_DATA.STRING:
+                        regex = this._regexString;
+                        break;
+                }
+
+                ok &= System.Text.RegularExpressions.Regex.IsMatch(this.Text, regex);
+
+                if (!ok)
+                    return ok;
+
+                switch (this._typedata)
+                {
+                    case TYPE_DATA.DECIMAL:
+                        double aux = double.Parse(this.Text);
+                        if (aux > this._maxDecimalValue || aux < this._minDecimalValue)
+                            ok = false;
+                        break;
+                    case TYPE_DATA.INTEGER:
+                        aux = double.Parse(this.Text);
+                        if (aux > this._maxDecimalValue || aux < this._minDecimalValue)
+                            ok = false;
+                        break;
+                    case TYPE_DATA.STRING:
+                        aux = this.Text.Length;
+                        if (aux > this._maxLenghtStringValue || aux < this._minLenghtStringValue)
+                            ok = false;
+                        break;
+                }
+
+                return ok;
+            }
+        }
+
+        #endregion Private functions
     }
 }
