@@ -36,10 +36,10 @@
             this.extendedTextBox1.BackColor = System.Drawing.Color.LightSalmon;
             this.extendedTextBox1.CustomRegex = "^.+$";
             this.extendedTextBox1.Location = new System.Drawing.Point(113, 46);
-            this.extendedTextBox1.MaxNumberValue = double.NaN;
-            this.extendedTextBox1.MaxStringLength = 10;
-            this.extendedTextBox1.MinNumberValue = double.NaN;
-            this.extendedTextBox1.MinStringLength = 9;
+            this.extendedTextBox1.MaxNumberValue = 8D;
+            this.extendedTextBox1.MaxStringLength = 1;
+            this.extendedTextBox1.MinNumberValue = 7D;
+            this.extendedTextBox1.MinStringLength = 1;
             this.extendedTextBox1.Name = "extendedTextBox1";
             this.extendedTextBox1.Size = new System.Drawing.Size(100, 20);
             this.extendedTextBox1.TabIndex = 0;

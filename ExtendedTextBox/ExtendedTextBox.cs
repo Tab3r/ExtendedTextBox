@@ -30,8 +30,8 @@ namespace Inclam
         private double _minDecimalValue;
         private double _maxDecimalValue;
 
-        private int _minLenghtStringValue;
-        private int _maxLenghtStringValue;
+        private int _minLengthStringValue;
+        private int _maxLengthStringValue;
 
         #region Constructor
 
@@ -59,8 +59,8 @@ namespace Inclam
             this._maxDecimalValue = float.NaN;
 
             // Initialize max/min lenght for string
-            this._minLenghtStringValue = -1;
-            this._maxLenghtStringValue = -1;
+            this._minLengthStringValue = -1;
+            this._maxLengthStringValue = -1;
 
             // Launch first
             this.OnTextChanged(null);
@@ -107,6 +107,8 @@ namespace Inclam
             }
             set
             {
+                if (this._maxDecimalValue < value)
+                    return;
                 this._minDecimalValue = value;
             }
         }
@@ -123,39 +125,55 @@ namespace Inclam
             }
             set
             {
+                if (this._minDecimalValue > value)
+                    return;
                 this._maxDecimalValue = value;
             }
         }
 
         [Browsable(true)]
         [Category("Extension")]
-        [Description("Get or set minimum lenght for a string. Only used with type STRING.")]
-        [DisplayName("Min. String Lenght")]
+        [Description("Get or set minimum length for a string. Only used with type STRING.")]
+        [DisplayName("Min. String Length")]
         public int MinStringLength
         {
             get
             {
-                return this._minLenghtStringValue;
+                return this._minLengthStringValue;
             }
             set
             {
-                this._minLenghtStringValue = value;
+                // Check for correct value
+                if (value < 0)
+                    return;
+                // Don't allow min length upper to max length
+                if (this._maxLengthStringValue < value)
+                    return;
+
+                this._minLengthStringValue = value;
             }
         }
 
         [Browsable(true)]
         [Category("Extension")]
-        [Description("Get or set maximum lenght for a string. Only used with type STRING.")]
-        [DisplayName("Max. String Lenght")]
+        [Description("Get or set maximum length for a string. Only used with type STRING.")]
+        [DisplayName("Max. String Length")]
         public int MaxStringLength
         {
             get
             {
-                return this._maxLenghtStringValue;
+                return this._maxLengthStringValue;
             }
             set
             {
-                this._maxLenghtStringValue = value;
+                // Check for correct value
+                if (value < 0)
+                    return;
+                // Don't allow max length lower to min length
+                if (this._minLengthStringValue > value)
+                    return;
+
+                this._maxLengthStringValue = value;
             }
         }
 
@@ -237,7 +255,7 @@ namespace Inclam
                         break;
                     case TYPE_DATA.STRING:
                         aux = this.Text.Length;
-                        if (aux > this._maxLenghtStringValue || aux < this._minLenghtStringValue)
+                        if (aux > this._maxLengthStringValue || aux < this._minLengthStringValue)
                             ok = false;
                         break;
                 }
