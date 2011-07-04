@@ -9,29 +9,55 @@ using System.Windows.Forms;
 
 namespace Inclam
 {
+    /// <summary>
+    /// Type of data that can be validated
+    /// </summary>
     public enum TYPE_DATA
-        {
-            CUSTOM,
-            INTEGER,
-            DECIMAL,
-            STRING
-        }
+    {
+        /// <summary>
+        /// Custom, it needs a custom Regex
+        /// </summary>
+        CUSTOM,
+        /// <summary>
+        /// Integer without decimal
+        /// </summary>
+        INTEGER,
+        /// <summary>
+        /// Decimal, that will be parsed with "float.Parse" or "double.Parse"
+        /// </summary>
+        DECIMAL,
+        /// <summary>
+        /// Decimal, more restrictive only "X" or "XXX.XXX" is allowed
+        /// </summary>
+        DECIMAL_RESTRICTIVE,
+        /// <summary>
+        /// String
+        /// </summary>
+        STRING
+    }
 
     public class ExtendedTextBox : TextBox
     {
         
         TYPE_DATA _typedata = TYPE_DATA.CUSTOM;
 
+        // Regex
         private string _regexDecimal;
+        private string _regexDecimalMoreRestrictive;
         private string _regexInteger;
         private string _regexString;
         private string _regexCustom;
 
+        // Limits
         private double _minDecimalValue;
         private double _maxDecimalValue;
-
         private int _minLengthStringValue;
         private int _maxLengthStringValue;
+
+        // Propierties
+        private bool _isValid;
+        private Color _backcolorOK;
+        private Color _backcolorERROR;
 
         #region Constructor
 
@@ -39,20 +65,21 @@ namespace Inclam
         {
             //InitializeComponent();
 
-            //Activate double buffering
+            // Activate double buffering
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer |
                 ControlStyles.AllPaintingInWmPaint, true);
 
-            //Enable the OnNotifyMessage event so we get a chance to filter out 
+            // Enable the OnNotifyMessage event so we get a chance to filter out 
             // Windows messages before they get to the form's WndProc
             this.SetStyle(ControlStyles.EnableNotifyMessage, true);
 
             // Initialize the regex expresions
-            string separator = System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator;
-            this._regexDecimal = "^[+-]?[0-9]+[" + separator + "]?[0-9]*?$";
+            string separator = System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator;                // Its ok: "0.1", ".1" or "0."
+            this._regexDecimal = "^[+-]?[0-9]+[" + separator + "]?[0-9]*?$|^[+-]?[0-9]*[" + separator + "]?[0-9]+?$";   // Its ok: "numberSEPARATORnumber" or "number"
+            this._regexDecimalMoreRestrictive = "^[+-]?[0-9]+[" + separator + "]?[0-9]+?$";
             this._regexInteger = "^[+-]?[0-9]+$";
             this._regexString = @"\w+";
-            this._regexCustom = "^.+$";
+            this._regexCustom = "^.+$"; // use this website to check: http://derekslager.com/blog/posts/2007/09/a-better-dotnet-regular-expression-tester.ashx
             
             // Initialize max/min value for integer/decimal
             this._minDecimalValue = float.NaN;
@@ -61,6 +88,10 @@ namespace Inclam
             // Initialize max/min lenght for string
             this._minLengthStringValue = -1;
             this._maxLengthStringValue = -1;
+
+            // Colors
+            this._backcolorOK = Color.LightGreen;
+            this._backcolorERROR = Color.LightSalmon;
 
             // Launch first
             this.OnTextChanged(null);
@@ -79,6 +110,15 @@ namespace Inclam
 
         #region Propierties
 
+        [Browsable(false)]
+        public bool IsValid
+        {
+            get
+            {
+                return this._isValid;
+            }
+        }
+
         [Browsable(true)]
         [Category("Extension")]
         [Description("Get or set type of data")]
@@ -92,6 +132,38 @@ namespace Inclam
             set
             {
                 this._typedata = value;
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Extension")]
+        [Description("Get or set backcolor of textbox when is ok")]
+        [DisplayName("Custom BackColor OK")]
+        public Color BackColorOk
+        {
+            get
+            {
+                return this._backcolorOK;
+            }
+            set
+            {
+                this._backcolorOK = value;
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Extension")]
+        [Description("Get or set backcolor of textbox when is wrong")]
+        [DisplayName("Custom BackColor ERROR")]
+        public Color BackColorERROR
+        {
+            get
+            {
+                return this._backcolorERROR;
+            }
+            set
+            {
+                this._backcolorERROR = value;
             }
         }
 
@@ -133,7 +205,7 @@ namespace Inclam
 
         [Browsable(true)]
         [Category("Extension")]
-        [Description("Get or set minimum length for a string. Only used with type STRING.")]
+        [Description("Get or set minimum length for a string. Only used with type STRING. The value -1 means no restrictions.")]
         [DisplayName("Min. String Length")]
         public int MinStringLength
         {
@@ -144,7 +216,7 @@ namespace Inclam
             set
             {
                 // Check for correct value
-                if (value < 0)
+                if (value < 0 && value != -1)
                     return;
                 // Don't allow min length upper to max length
                 if (this._maxLengthStringValue < value)
@@ -156,7 +228,7 @@ namespace Inclam
 
         [Browsable(true)]
         [Category("Extension")]
-        [Description("Get or set maximum length for a string. Only used with type STRING.")]
+        [Description("Get or set maximum length for a string. Only used with type STRING. The value -1 means no restrictions.")]
         [DisplayName("Max. String Length")]
         public int MaxStringLength
         {
@@ -167,7 +239,7 @@ namespace Inclam
             set
             {
                 // Check for correct value
-                if (value < 0)
+                if (value < 0 && value != -1)
                     return;
                 // Don't allow max length lower to min length
                 if (this._minLengthStringValue > value)
@@ -199,12 +271,18 @@ namespace Inclam
 
         protected override void OnTextChanged(EventArgs e)
         {
-            base.OnTextChanged(e);
-
             if (this.isValidText)
-                this.BackColor = Color.LightGreen;
+            {
+                this._isValid = true;
+                this.BackColor = this._backcolorOK;
+            }
             else
-                this.BackColor = Color.LightSalmon;
+            {
+                this._isValid = false;
+                this.BackColor = this._backcolorERROR;
+            }
+
+            base.OnTextChanged(e);
         }
 
         #endregion Events
@@ -228,6 +306,9 @@ namespace Inclam
                     case TYPE_DATA.DECIMAL:
                         regex = this._regexDecimal;
                         break;
+                    case TYPE_DATA.DECIMAL_RESTRICTIVE:
+                        regex = this._regexDecimalMoreRestrictive;
+                        break;
                     case TYPE_DATA.INTEGER:
                         regex = this._regexInteger;
                         break;
@@ -244,12 +325,9 @@ namespace Inclam
                 switch (this._typedata)
                 {
                     case TYPE_DATA.DECIMAL:
-                        double aux = double.Parse(this.Text);
-                        if (aux > this._maxDecimalValue || aux < this._minDecimalValue)
-                            ok = false;
-                        break;
+                    case TYPE_DATA.DECIMAL_RESTRICTIVE:
                     case TYPE_DATA.INTEGER:
-                        aux = double.Parse(this.Text);
+                        double aux = double.Parse(this.Text);
                         if (aux > this._maxDecimalValue || aux < this._minDecimalValue)
                             ok = false;
                         break;
