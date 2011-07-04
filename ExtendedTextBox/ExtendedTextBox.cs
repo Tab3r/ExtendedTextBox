@@ -36,6 +36,8 @@ namespace Inclam
         STRING
     }
 
+    public delegate bool dTextValidation(string text);
+
     public class ExtendedTextBox : TextBox
     {
         
@@ -58,6 +60,14 @@ namespace Inclam
         private bool _isValid;
         private Color _backcolorOK;
         private Color _backcolorERROR;
+
+        // Delegates
+        //  Useful for testing more complex regexs checks
+        [Browsable(true)]
+        [Category("Extension")]
+        [Description("Get or set a delegate to function to other validate")]
+        [DisplayName("Other validations")]
+        public event dTextValidation _OtherTextValidation; 
 
         #region Constructor
 
@@ -92,6 +102,9 @@ namespace Inclam
             // Colors
             this._backcolorOK = Color.LightGreen;
             this._backcolorERROR = Color.LightSalmon;
+
+            // Delegate to other validation
+            this._OtherTextValidation = null;
 
             // Launch first
             this.OnTextChanged(null);
@@ -215,13 +228,16 @@ namespace Inclam
             }
             set
             {
-                // Check for correct value
-                if (value < 0 && value != -1)
-                    return;
-                // Don't allow min length upper to max length
-                if (this._maxLengthStringValue < value)
-                    return;
-
+                // -1 is always valid
+                if (value != -1)
+                {
+                    // Check for correct value
+                    if (value < 0)
+                        return;
+                    // Don't allow min length upper to max length
+                    if (this._maxLengthStringValue < value)
+                        return;
+                }
                 this._minLengthStringValue = value;
             }
         }
@@ -238,13 +254,16 @@ namespace Inclam
             }
             set
             {
-                // Check for correct value
-                if (value < 0 && value != -1)
-                    return;
-                // Don't allow max length lower to min length
-                if (this._minLengthStringValue > value)
-                    return;
-
+                // -1 is always valid
+                if (value != -1)
+                {
+                    // Check for correct value
+                    if (value < 0)
+                        return;
+                    // Don't allow max length lower to min length
+                    if (this._minLengthStringValue > value)
+                        return;
+                }
                 this._maxLengthStringValue = value;
             }
         }
@@ -336,6 +355,11 @@ namespace Inclam
                         if (aux > this._maxLengthStringValue || aux < this._minLengthStringValue)
                             ok = false;
                         break;
+                }
+
+                if (this._OtherTextValidation != null)
+                {
+                    ok &= this._OtherTextValidation(this.Text);
                 }
 
                 return ok;
