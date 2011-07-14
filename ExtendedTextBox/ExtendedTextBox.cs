@@ -1,6 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+/*
+Copyright (C) 2011 by INCLAM S.A. (http://www.inclam.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
 using System.Drawing;
 using System.Data;
 using System.Linq;
@@ -33,7 +54,11 @@ namespace Inclam
         /// <summary>
         /// String
         /// </summary>
-        STRING
+        STRING,
+        /// <summary>
+        /// Email
+        /// </summary>
+        EMAIL
     }
 
     public delegate bool dTextValidation(string text);
@@ -41,6 +66,7 @@ namespace Inclam
     public class ExtendedTextBox : TextBox
     {
         
+        // Type of data to validate
         TYPE_DATA _typedata = TYPE_DATA.CUSTOM;
 
         // Regex
@@ -49,6 +75,7 @@ namespace Inclam
         private string _regexInteger;
         private string _regexString;
         private string _regexCustom;
+        private string _regexEmail;
 
         // Limits
         private double _minDecimalValue;
@@ -56,10 +83,13 @@ namespace Inclam
         private int _minLengthStringValue;
         private int _maxLengthStringValue;
 
-        // Propierties
+        // Textbox Propierties
         private bool _isValid;
         private Color _backcolorOK;
         private Color _backcolorERROR;
+
+
+        #region Delegates
 
         // Delegates
         //  Useful for testing more complex regexs checks
@@ -67,7 +97,9 @@ namespace Inclam
         [Category("Extension")]
         [Description("Get or set a delegate to function to other validate")]
         [DisplayName("Other validations")]
-        public event dTextValidation _OtherTextValidation; 
+        public event dTextValidation OtherTextValidation;
+
+        #endregion Delegates
 
         #region Constructor
 
@@ -89,6 +121,7 @@ namespace Inclam
             this._regexDecimalMoreRestrictive = "^[+-]?[0-9]+[" + separator + "]?[0-9]+?$";
             this._regexInteger = "^[+-]?[0-9]+$";
             this._regexString = @"\w+";
+            this._regexEmail = @"^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"; // From here: http://www.cambiaresearch.com/c4/bf974b23-484b-41c3-b331-0bd8121d5177/Parsing-Email-Addresses-with-Regular-Expressions.aspx
             this._regexCustom = "^.+$"; // use this website to check: http://derekslager.com/blog/posts/2007/09/a-better-dotnet-regular-expression-tester.ashx
             
             // Initialize max/min value for integer/decimal
@@ -104,7 +137,7 @@ namespace Inclam
             this._backcolorERROR = Color.LightSalmon;
 
             // Delegate to other validation
-            this._OtherTextValidation = null;
+            this.OtherTextValidation = null;
 
             // Launch first
             this.OnTextChanged(null);
@@ -308,6 +341,9 @@ namespace Inclam
 
         #region Private functions
 
+        /// <summary>
+        /// Check function with Regex and optional checks
+        /// </summary>
         public bool isValidText
         {
             get
@@ -334,6 +370,9 @@ namespace Inclam
                     case TYPE_DATA.STRING:
                         regex = this._regexString;
                         break;
+                    case TYPE_DATA.EMAIL:
+                        regex = this._regexEmail;
+                        break;
                 }
 
                 ok &= System.Text.RegularExpressions.Regex.IsMatch(this.Text, regex);
@@ -357,9 +396,9 @@ namespace Inclam
                         break;
                 }
 
-                if (this._OtherTextValidation != null)
+                if (this.OtherTextValidation != null)
                 {
-                    ok &= this._OtherTextValidation(this.Text);
+                    ok &= this.OtherTextValidation(this.Text);
                 }
 
                 return ok;
