@@ -58,7 +58,11 @@ namespace Inclam
         /// <summary>
         /// Email
         /// </summary>
-        EMAIL
+        EMAIL,
+        /// <summary>
+        /// URL
+        /// </summary>
+        URL
     }
 
     public delegate bool dTextValidation(string text);
@@ -76,6 +80,7 @@ namespace Inclam
         private string _regexString;
         private string _regexCustom;
         private string _regexEmail;
+        private string _regexURL;
 
         // Limits
         private double _minDecimalValue;
@@ -122,6 +127,7 @@ namespace Inclam
             this._regexInteger = "^[+-]?[0-9]+$";
             this._regexString = @"\w+";
             this._regexEmail = @"^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"; // From here: http://www.cambiaresearch.com/c4/bf974b23-484b-41c3-b331-0bd8121d5177/Parsing-Email-Addresses-with-Regular-Expressions.aspx
+            this._regexURL = @"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'"".,<>?«»“”‘’]))"; // http://daringfireball.net/2010/07/improved_regex_for_matching_urls
             this._regexCustom = "^.+$"; // use this website to check: http://derekslager.com/blog/posts/2007/09/a-better-dotnet-regular-expression-tester.ashx
             
             // Initialize max/min value for integer/decimal
@@ -372,6 +378,9 @@ namespace Inclam
                         break;
                     case TYPE_DATA.EMAIL:
                         regex = this._regexEmail;
+                        break;
+                    case TYPE_DATA.URL:
+                        regex = this._regexURL;
                         break;
                 }
 
