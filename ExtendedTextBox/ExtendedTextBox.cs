@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-/*
+﻿/*
 Copyright (C) 2011 by INCLAM S.A. (http://www.inclam.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,6 +19,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Data;
 using System.Linq;
@@ -69,7 +69,9 @@ namespace Inclam
 
     public class ExtendedTextBox : TextBox
     {
-        
+
+        #region Variables
+
         // Type of data to validate
         TYPE_DATA _typedata = TYPE_DATA.CUSTOM;
 
@@ -85,6 +87,7 @@ namespace Inclam
         // Limits
         private double _minDecimalValue;
         private double _maxDecimalValue;
+        private int _maxNumberDecimalDigits;
         private int _minLengthStringValue;
         private int _maxLengthStringValue;
 
@@ -93,6 +96,7 @@ namespace Inclam
         private Color _backcolorOK;
         private Color _backcolorERROR;
 
+        #endregion Variables
 
         #region Delegates
 
@@ -133,6 +137,7 @@ namespace Inclam
             // Initialize max/min value for integer/decimal
             this._minDecimalValue = float.NaN;
             this._maxDecimalValue = float.NaN;
+            this._maxNumberDecimalDigits = -1;
 
             // Initialize max/min lenght for string
             this._minLengthStringValue = -1;
@@ -163,6 +168,7 @@ namespace Inclam
         #region Propierties
 
         [Browsable(false)]
+        [Description("Get is the text is valid for the type of data")]
         public bool IsValid
         {
             get
@@ -257,6 +263,22 @@ namespace Inclam
 
         [Browsable(true)]
         [Category("Extension")]
+        [Description("Get or set maximum number of decimal digits in number value. Only used with type DECIMAL. The -1 means infinite.")]
+        [DisplayName("Max. Number Decimal Digits")]
+        public int MaxNumberDecimalDigits
+        {
+            get
+            {
+                return this._maxNumberDecimalDigits;
+            }
+            set
+            {
+                this._maxNumberDecimalDigits = value;
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Extension")]
         [Description("Get or set minimum length for a string. Only used with type STRING. The value -1 means no restrictions.")]
         [DisplayName("Min. String Length")]
         public int MinStringLength
@@ -333,6 +355,21 @@ namespace Inclam
             {
                 this._isValid = true;
                 this.BackColor = this._backcolorOK;
+
+                // Check max number of decimal digits
+                if ((this._typedata ==  TYPE_DATA.DECIMAL || this._typedata == TYPE_DATA.DECIMAL_RESTRICTIVE) 
+                     && this._maxNumberDecimalDigits > -1)
+                {
+                    // I found the idea here: http://stackoverflow.com/questions/2453951/c-double-tostring-formatting-with-two-decimal-places-but-no-rounding
+                    double tmp = double.Parse(this.Text);
+                    string sFormat = "{0:0.";
+                    for (int i = 0; i < this._maxNumberDecimalDigits; i++)
+                        sFormat += "#";
+                    sFormat += "}";
+                    string s = string.Format(System.Globalization.CultureInfo.CurrentCulture, sFormat, tmp);
+                    this.Text = s;
+                }
+
             }
             else
             {
@@ -348,7 +385,7 @@ namespace Inclam
         #region Private functions
 
         /// <summary>
-        /// Check function with Regex and optional checks
+        /// <para>Check function with Regex and optional checks.</para>
         /// </summary>
         public bool isValidText
         {
