@@ -28,7 +28,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Inclam
+namespace Inclam.Controls
 {
     /// <summary>
     /// Type of data that can be validated
@@ -227,7 +227,7 @@ namespace Inclam
 
         [Browsable(true)]
         [Category("Extension")]
-        [Description("Get or set minimum value for a number. Only used with type DECIMAL/INTEGER.")]
+        [Description("Get or set minimum value for a number. Only used with type DECIMAL/INTEGER. The string \"NeuN\" means no limit.")]
         [DisplayName("Min. Number Value")]
         public double MinNumberValue
         {
@@ -245,7 +245,7 @@ namespace Inclam
 
         [Browsable(true)]
         [Category("Extension")]
-        [Description("Get or set maximum value for a number. Only used with type DECIMAL/INTEGER.")]
+        [Description("Get or set maximum value for a number. Only used with type DECIMAL/INTEGER. The string \"NeuN\" means no limit.")]
         [DisplayName("Max. Number Value")]
         public double MaxNumberValue
         {
@@ -341,7 +341,11 @@ namespace Inclam
             }
             set
             {
-                this._regexCustom = value;
+                // This isn't a perfect solution but...
+                if (this.isValidRegex(value))
+                {
+                    this._regexCustom = value;
+                }
             }
         }
 
@@ -432,13 +436,40 @@ namespace Inclam
                     case TYPE_DATA.DECIMAL_RESTRICTIVE:
                     case TYPE_DATA.INTEGER:
                         double aux = double.Parse(this.Text);
-                        if (aux > this._maxDecimalValue || aux < this._minDecimalValue)
-                            ok = false;
+                        if (this._maxDecimalValue != double.NaN && this._minDecimalValue != double.NaN)
+                        {
+                            if (aux > this._maxDecimalValue || aux < this._minDecimalValue)
+                                ok = false;
+                        }
+                        else if (this._maxDecimalValue == double.NaN && this._minDecimalValue != double.NaN)
+                        {
+                            if (aux < this._minDecimalValue)
+                                ok = false;
+                        }
+                        else if (this._maxDecimalValue != double.NaN && this._minDecimalValue == double.NaN)
+                        {
+                            if (aux > this._maxDecimalValue)
+                                ok = false;
+                        }
                         break;
                     case TYPE_DATA.STRING:
                         aux = this.Text.Length;
-                        if (aux > this._maxLengthStringValue || aux < this._minLengthStringValue)
-                            ok = false;
+                        // Checks, but considering the limiters are null (-1)
+                        if (this._maxLengthStringValue != -1 && this._minLengthStringValue != -1)
+                        {
+                            if (aux > this._maxLengthStringValue || aux < this._minLengthStringValue)
+                                ok = false;
+                        }
+                        else if (this._maxLengthStringValue == -1 && this._minLengthStringValue != -1)
+                        {
+                            if (aux < this._minLengthStringValue)
+                                ok = false;
+                        }
+                        else if (this._maxLengthStringValue != -1 && this._minLengthStringValue == -1)
+                        {
+                            if (aux > this._maxLengthStringValue)
+                                ok = false;
+                        }
                         break;
                 }
 
@@ -449,6 +480,32 @@ namespace Inclam
 
                 return ok;
             }
+        }
+
+        /// <summary>
+        /// <para>Check patter for Regex object</para>
+        /// </summary>
+        /// <param name="pattern">String pattern</param>
+        /// <returns>If it is valid</returns>
+        public bool isValidRegex(string pattern)
+        {
+            bool isValid = true;
+
+            // This is not a pattern
+            if ((pattern == null) || (pattern == string.Empty) || (pattern.Trim() == string.Empty))
+                return false;
+
+            // do the trick... :)
+            try
+            {
+                System.Text.RegularExpressions.Regex.Match("", pattern);
+            }
+            catch
+            {
+                isValid = false;
+            }
+
+            return isValid;
         }
 
         #endregion Private functions
