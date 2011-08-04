@@ -95,6 +95,7 @@ namespace Inclam.Controls
         private bool _isValid;
         private Color _backcolorOK;
         private Color _backcolorERROR;
+        private bool _emptyIsValid;
 
         #endregion Variables
 
@@ -166,6 +167,16 @@ namespace Inclam.Controls
         #endregion Constructor
 
         #region Propierties
+
+        [Browsable(true)]
+        [Category("Extension")]
+        [Description("Get or set if empty value is valid")]
+        [DisplayName("Empty is valid")]
+        public bool EmptyIsValid
+        {
+            get { return this._emptyIsValid; }
+            set { this._emptyIsValid = value; }
+        }
 
         [Browsable(false)]
         [Description("Get is the text is valid for the type of data")]
@@ -395,11 +406,20 @@ namespace Inclam.Controls
         {
             get
             {
+                // First check: Is empty string?
+                // -----------------------------
+                if (this.Text == string.Empty)
+                {
+                    if (this._emptyIsValid)
+                        return true;
+                    else
+                        return false;
+                }
 
+                // Second check: Is valid?
+                // -----------------------
                 bool ok = true;
-
                 string regex = string.Empty;
-
                 switch (this._typedata)
                 {
                     case TYPE_DATA.CUSTOM:
@@ -427,9 +447,12 @@ namespace Inclam.Controls
 
                 ok &= System.Text.RegularExpressions.Regex.IsMatch(this.Text, regex);
 
+                // Regex mark as not valid -> exits with false
                 if (!ok)
                     return ok;
 
+                // Third check: Limits
+                // -------------------
                 switch (this._typedata)
                 {
                     case TYPE_DATA.DECIMAL:
@@ -473,6 +496,9 @@ namespace Inclam.Controls
                         break;
                 }
 
+
+                // Fourth check: Delegate
+                // ----------------------
                 if (this.OtherTextValidation != null)
                 {
                     ok &= this.OtherTextValidation(this.Text);
