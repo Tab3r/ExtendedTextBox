@@ -8,8 +8,8 @@
     <ProjectGuid>{ACE70538-DEF6-4944-B50E-4CF48305D63A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ExtendedTextBox</RootNamespace>
-    <AssemblyName>ExtendedTextBox</AssemblyName>
+    <RootNamespace>Inclam.ExtendedTextBox</RootNamespace>
+    <AssemblyName>Inclam.ExtendedTextBox</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PublishUrl>publish\</PublishUrl>

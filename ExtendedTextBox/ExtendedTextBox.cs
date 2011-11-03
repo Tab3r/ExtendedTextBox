@@ -157,7 +157,7 @@ namespace Inclam.Controls
 
         protected override void OnNotifyMessage(Message m)
         {
-            //Filter out the WM_ERASEBKGND message
+            //Filter out the WM_ERASEBKGND message for flickering
             if (m.Msg != 0x14)
             {
                 base.OnNotifyMessage(m);
