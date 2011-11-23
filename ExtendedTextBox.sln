@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtendedTextBoxTest", "ExtendedTextBoxTest\ExtendedTextBoxTest.csproj", "{D2A52921-B5C0-483B-A8D9-8544C4EBE062}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtendedTextBox", "ExtendedTextBox\ExtendedTextBox.csproj", "{ACE70538-DEF6-4944-B50E-4CF48305D63A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inclam.ExtendedTextBox", "ExtendedTextBox\Inclam.ExtendedTextBox.csproj", "{ACE70538-DEF6-4944-B50E-4CF48305D63A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

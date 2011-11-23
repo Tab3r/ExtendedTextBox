@@ -52,6 +52,10 @@ namespace Inclam.Controls
         /// </summary>
         DECIMAL_RESTRICTIVE,
         /// <summary>
+        /// Percent number
+        /// </summary>
+        PERCENT,
+        /// <summary>
         /// String
         /// </summary>
         STRING,
@@ -83,6 +87,7 @@ namespace Inclam.Controls
         private string _regexCustom;
         private string _regexEmail;
         private string _regexURL;
+        private string _regexPercent;
 
         // Limits
         private double _minDecimalValue;
@@ -134,6 +139,7 @@ namespace Inclam.Controls
             this._regexEmail = @"^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"; // From here: http://www.cambiaresearch.com/c4/bf974b23-484b-41c3-b331-0bd8121d5177/Parsing-Email-Addresses-with-Regular-Expressions.aspx
             this._regexURL = @"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'"".,<>?«»“”‘’]))"; // http://daringfireball.net/2010/07/improved_regex_for_matching_urls
             this._regexCustom = "^.+$"; // use this website to check: http://derekslager.com/blog/posts/2007/09/a-better-dotnet-regular-expression-tester.ashx
+            this._regexPercent = "^[+-]?[0-9]+[" + separator + "]?[0-9]*?%?$|^[+-]?[0-9]*[" + separator + "]?[0-9]+?%?$";
             
             // Initialize max/min value for integer/decimal
             this._minDecimalValue = float.NaN;
@@ -434,6 +440,9 @@ namespace Inclam.Controls
                     case TYPE_DATA.INTEGER:
                         regex = this._regexInteger;
                         break;
+                    case TYPE_DATA.PERCENT:
+                        regex = this._regexPercent;
+                        break;
                     case TYPE_DATA.STRING:
                         regex = this._regexString;
                         break;
@@ -459,6 +468,24 @@ namespace Inclam.Controls
                     case TYPE_DATA.DECIMAL_RESTRICTIVE:
                     case TYPE_DATA.INTEGER:
                         double aux = double.Parse(this.Text);
+                        if (this._maxDecimalValue != double.NaN && this._minDecimalValue != double.NaN)
+                        {
+                            if (aux > this._maxDecimalValue || aux < this._minDecimalValue)
+                                ok = false;
+                        }
+                        else if (this._maxDecimalValue == double.NaN && this._minDecimalValue != double.NaN)
+                        {
+                            if (aux < this._minDecimalValue)
+                                ok = false;
+                        }
+                        else if (this._maxDecimalValue != double.NaN && this._minDecimalValue == double.NaN)
+                        {
+                            if (aux > this._maxDecimalValue)
+                                ok = false;
+                        }
+                        break;
+                    case TYPE_DATA.PERCENT:
+                        aux = double.Parse(this.Text.Replace("%", ""));
                         if (this._maxDecimalValue != double.NaN && this._minDecimalValue != double.NaN)
                         {
                             if (aux > this._maxDecimalValue || aux < this._minDecimalValue)

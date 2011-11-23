@@ -114,9 +114,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ExtendedTextBox\ExtendedTextBox.csproj">
+    <ProjectReference Include="..\ExtendedTextBox\Inclam.ExtendedTextBox.csproj">
       <Project>{ACE70538-DEF6-4944-B50E-4CF48305D63A}</Project>
-      <Name>ExtendedTextBox</Name>
+      <Name>Inclam.ExtendedTextBox</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

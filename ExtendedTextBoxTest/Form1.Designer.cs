@@ -37,16 +37,17 @@
             this.extendedTextBox1.BackColorERROR = System.Drawing.Color.LightSalmon;
             this.extendedTextBox1.BackColorOk = System.Drawing.Color.LightGreen;
             this.extendedTextBox1.CustomRegex = "^.+$";
+            this.extendedTextBox1.EmptyIsValid = false;
             this.extendedTextBox1.Location = new System.Drawing.Point(113, 46);
             this.extendedTextBox1.MaxNumberDecimalDigits = -1;
-            this.extendedTextBox1.MaxNumberValue = double.NaN;
+            this.extendedTextBox1.MaxNumberValue = 100D;
             this.extendedTextBox1.MaxStringLength = -1;
-            this.extendedTextBox1.MinNumberValue = double.NaN;
+            this.extendedTextBox1.MinNumberValue = 0D;
             this.extendedTextBox1.MinStringLength = -1;
             this.extendedTextBox1.Name = "extendedTextBox1";
             this.extendedTextBox1.Size = new System.Drawing.Size(100, 20);
             this.extendedTextBox1.TabIndex = 0;
-            this.extendedTextBox1.TypeOfData = Inclam.Controls.TYPE_DATA.STRING;
+            this.extendedTextBox1.TypeOfData = Inclam.Controls.TYPE_DATA.PERCENT;
             // 
             // Form1
             // 
