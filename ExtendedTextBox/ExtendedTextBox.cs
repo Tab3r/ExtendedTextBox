@@ -207,6 +207,15 @@ namespace Inclam.Controls
             set
             {
                 this._typedata = value;
+
+                //  the "traditional way" of showing number ...
+                if (this._typedata == TYPE_DATA.DECIMAL || this._typedata == TYPE_DATA.DECIMAL_RESTRICTIVE ||
+                    this._typedata == TYPE_DATA.INTEGER || this._typedata == TYPE_DATA.PERCENT)
+                    this.TextAlign = HorizontalAlignment.Right;
+                //  the "traditional way" of showing number ...
+                else if (this._typedata == TYPE_DATA.CUSTOM || this._typedata == TYPE_DATA.URL ||
+                         this._typedata == TYPE_DATA.EMAIL)
+                    this.TextAlign = HorizontalAlignment.Left;
             }
         }
 

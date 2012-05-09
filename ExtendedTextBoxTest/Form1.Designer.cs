@@ -33,7 +33,7 @@
             // 
             // extendedTextBox1
             // 
-            this.extendedTextBox1.BackColor = System.Drawing.Color.LightSalmon;
+            this.extendedTextBox1.BackColor = System.Drawing.Color.LightGreen;
             this.extendedTextBox1.BackColorERROR = System.Drawing.Color.LightSalmon;
             this.extendedTextBox1.BackColorOk = System.Drawing.Color.LightGreen;
             this.extendedTextBox1.CustomRegex = "^.+$";
@@ -47,7 +47,9 @@
             this.extendedTextBox1.Name = "extendedTextBox1";
             this.extendedTextBox1.Size = new System.Drawing.Size(100, 20);
             this.extendedTextBox1.TabIndex = 0;
-            this.extendedTextBox1.TypeOfData = Inclam.Controls.TYPE_DATA.PERCENT;
+            this.extendedTextBox1.Text = "0";
+            this.extendedTextBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.extendedTextBox1.TypeOfData = Inclam.Controls.TYPE_DATA.DECIMAL_RESTRICTIVE;
             // 
             // Form1
             // 
